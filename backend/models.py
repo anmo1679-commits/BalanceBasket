@@ -14,3 +14,11 @@ class Item(Base):
     list_id = Column(Integer, ForeignKey("lists.id"), index=True)
     name = Column(String, nullable=False)
     checked = Column(Boolean, default=False)
+
+class MealRate(Base):
+    __tablename__ = "meals"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    rating = Column(Integer, nullable=False)
+

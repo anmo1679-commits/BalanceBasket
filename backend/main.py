@@ -95,3 +95,61 @@ def search_products_api(q: str = ""):
             results.append(comparison)
             
     return results
+
+# ── Optimization ───────────────────────────────────────────────────────────────
+
+from list_optimizer import optimize_list
+from schemas import ListOptimizationRequest
+
+@app.post("/api/lists/optimize")
+def optimize_list_api(payload: ListOptimizationRequest):
+    if not payload.items:
+        raise HTTPException(status_code=400, detail="List cannot be empty")
+        
+    return optimize_list(payload.items)
+
+# ── Seasonal ───────────────────────────────────────────────────────────────────
+
+from seasonal_guide import get_seasonal_produce
+
+@app.get("/api/seasonal")
+def seasonal_produce_api():
+    seasonal_data = get_seasonal_produce()
+    if not seasonal_data:
+        # Fallback if the dataset is empty or logic fails
+        return []
+        
+    # We'll attach the cheapest option to each seasonal produce item if possible
+    from price_compare import get_price_comparison
+    for item in seasonal_data:
+        comp = get_price_comparison(item["product_name"])
+        if comp:
+             item["cheapest_store"] = comp.get("cheapest_option")
+             item["cheapest_price"] = comp.get("cheapest_price")
+             
+    return seasonal_data
+
+
+# ── Social Feed ────────────────────────────────────────────────────────────────
+
+from schemas import MealCreate, MealOut
+
+@app.post("/api/meals", response_model=MealOut, status_code=201)
+def create_meal(payload: MealCreate, db: Session = Depends(get_db)):
+    if payload.rating < 1 or payload.rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+        
+    new_meal = models.MealRate(
+        name=payload.name,
+        description=payload.description,
+        rating=payload.rating
+    )
+    db.add(new_meal)
+    db.commit()
+    db.refresh(new_meal)
+    return new_meal
+
+@app.get("/api/meals", response_model=list[MealOut])
+def get_meals(db: Session = Depends(get_db)):
+    # Return meals ordered by newest first (descending ID)
+    return db.query(models.MealRate).order_by(models.MealRate.id.desc()).all()

@@ -30,3 +30,22 @@ class ItemOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ListOptimizationRequest(BaseModel):
+    items: list[str]
+
+class MealCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    rating: int
+    
+class MealOut(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    rating: int
+    
+    class Config:
+        from_attributes = True
+
