@@ -1,0 +1,22 @@
+INFO:     Started server process [45225]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:56048 - "GET /api/products/search?q=cheese HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56051 - "GET /api/products/search?q=BBQ%20Chicken HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56051 - "GET /api/products/search?q=BBQ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56075 - "GET /api/products/search?q=milk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56086 - "GET /api/seasonal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56086 - "GET /api/seasonal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56086 - "GET /api/meals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56086 - "GET /api/meals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56096 - "GET /api/seasonal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56096 - "GET /api/seasonal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56159 - "GET /api/seasonal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56159 - "GET /api/seasonal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56159 - "GET /api/meals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56159 - "GET /api/meals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56181 - "OPTIONS /api/lists/optimize HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56181 - "POST /api/lists/optimize HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56183 - "GET /api/seasonal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56183 - "GET /api/seasonal HTTP/1.1" 200 OK
