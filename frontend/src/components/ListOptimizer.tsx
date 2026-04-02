@@ -10,8 +10,12 @@ interface OptimizationResult {
     itemized_breakdown: Record<string, any>;
 }
 
-export default function ListOptimizer() {
-    const [items, setItems] = useState<string[]>([]);
+interface ListOptimizerProps {
+    items: string[];
+    setItems: (items: string[]) => void;
+}
+
+export default function ListOptimizer({ items, setItems }: ListOptimizerProps) {
     const [newItem, setNewItem] = useState('');
     const [result, setResult] = useState<OptimizationResult | null>(null);
     const [loading, setLoading] = useState(false);

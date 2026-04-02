@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -28,6 +29,63 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# ── Authentication ──────────────────────────────────────────────────────────────
+
+from auth import get_password_hash, verify_password, create_access_token, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+import jwt
+from datetime import timedelta
+from schemas import UserCreate, UserOut, Token
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except jwt.PyJWTError:
+        raise credentials_exception
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+@app.post("/api/register", response_model=UserOut)
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    hashed_password = get_password_hash(user.password)
+    db_user = models.User(email=user.email, name=user.name, hashed_password=hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@app.post("/api/token", response_model=Token)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/api/users/me", response_model=UserOut)
+def read_users_me(current_user: models.User = Depends(get_current_user)):
+    return current_user
 
 
 # ── Lists ──────────────────────────────────────────────────────────────────────
@@ -156,3 +214,25 @@ def create_meal(payload: MealCreate, db: Session = Depends(get_db)):
 def get_meals(db: Session = Depends(get_db)):
     # Return meals ordered by newest first (descending ID)
     return db.query(models.MealRate).order_by(models.MealRate.id.desc()).all()
+
+
+# ── AI Assistant ───────────────────────────────────────────────────────────────
+
+from pydantic import BaseModel
+from ai_service import generate_chat_response
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+    
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage]
+    cart_items: list[str] = []
+
+@app.post("/api/chat")
+async def chat_api(payload: ChatRequest):
+    # Convert Pydantic models to dicts for the OpenAI API
+    messages_dicts = [{"role": m.role, "content": m.content} for m in payload.messages]
+    
+    response_text = await generate_chat_response(messages_dicts, payload.cart_items)
+    return {"reply": response_text}
