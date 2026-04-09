@@ -10,8 +10,15 @@ def optimize_list(product_names: List[str]) -> Dict[str, Any]:
     store_item_counts = {}
     itemized_breakdown = {}
     
+    from product_search import search_products
+    
     for product in product_names:
-        comparison = get_price_comparison(product)
+        matches = search_products(product, limit=1)
+        if not matches:
+            continue
+            
+        best_match = matches[0]
+        comparison = get_price_comparison(best_match)
         if not comparison:
             continue
             

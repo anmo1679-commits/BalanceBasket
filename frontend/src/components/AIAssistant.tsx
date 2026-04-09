@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMessage {
     role: 'user' | 'assistant';
@@ -8,9 +9,10 @@ interface ChatMessage {
 
 interface AIAssistantProps {
     currentCartItems: string[];
+    diet: string;
 }
 
-export default function AIAssistant({ currentCartItems }: AIAssistantProps) {
+export default function AIAssistant({ currentCartItems, diet }: AIAssistantProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([{
         role: 'assistant',
         content: "Hi! I'm your BalanceBasket Expert. I can see your grocery list and help you find healthy recipes, answer nutrition questions, and save money. What's on your mind?"
@@ -43,17 +45,40 @@ export default function AIAssistant({ currentCartItems }: AIAssistantProps) {
 
             const response = await fetch('http://localhost:8000/api/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     messages: apiMessages,
-                    cart_items: currentCartItems
+                    cart_items: currentCartItems,
+                    diet: diet
                 })
             });
 
             if (!response.ok) throw new Error('API communication failed');
+            if (!response.body) throw new Error('No response body');
 
-            const data = await response.json();
-            setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            // Add initial empty message
+            setMessages([...newMessages, { role: 'assistant', content: '' }]);
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                const text = decoder.decode(value, { stream: true });
+                setMessages(prev => {
+                    const updated = [...prev];
+                    const lastIdx = updated.length - 1;
+                    updated[lastIdx] = {
+                        ...updated[lastIdx],
+                        content: updated[lastIdx].content + text
+                    };
+                    return updated;
+                });
+            }
         } catch (err) {
             setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I am having trouble connecting to the server. Is the backend running?' }]);
         } finally {
@@ -101,10 +126,14 @@ export default function AIAssistant({ currentCartItems }: AIAssistantProps) {
                             borderBottomLeftRadius: msg.role === 'assistant' ? '4px' : 'var(--radius-lg)',
                             boxShadow: 'var(--shadow-sm)',
                             border: msg.role === 'assistant' ? '1px solid var(--border-light)' : 'none',
-                            whiteSpace: 'pre-wrap',
+                            whiteSpace: msg.role === 'user' ? 'pre-wrap' : 'normal',
                             lineHeight: 1.5
                         }}>
-                            {msg.content}
+                            {msg.role === 'assistant' ? (
+                                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                            ) : (
+                                msg.content
+                            )}
                         </div>
 
                         {msg.role === 'user' && (

@@ -8,7 +8,7 @@ interface PriceResult {
     prices: Record<string, number>;
 }
 
-export default function SearchTool() {
+export default function SearchTool({ diet }: { diet: string }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<PriceResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function SearchTool() {
         setError('');
 
         try {
-            const response = await fetch(`http://localhost:8000/api/products/search?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`http://localhost:8000/api/products/search?q=${encodeURIComponent(query)}&diet=${encodeURIComponent(diet)}`);
             if (!response.ok) throw new Error('Failed to fetch data');
 
             const data = await response.json();

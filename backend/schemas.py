@@ -34,6 +34,7 @@ class ItemOut(BaseModel):
 
 class ListOptimizationRequest(BaseModel):
     items: list[str]
+    diet: str = "None"
 
 class MealCreate(BaseModel):
     name: str

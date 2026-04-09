@@ -9,7 +9,7 @@ interface SeasonalItem {
     cheapest_price?: number;
 }
 
-export default function SeasonalDashboard() {
+export default function SeasonalDashboard({ diet }: { diet: string }) {
     const [items, setItems] = useState<SeasonalItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -17,7 +17,7 @@ export default function SeasonalDashboard() {
     useEffect(() => {
         const fetchSeasonal = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/seasonal');
+                const response = await fetch(`http://localhost:8000/api/seasonal?diet=${encodeURIComponent(diet)}`);
                 if (!response.ok) throw new Error('Failed to fetch seasonal produce');
                 const data = await response.json();
                 setItems(data);

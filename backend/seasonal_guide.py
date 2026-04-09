@@ -14,7 +14,7 @@ def get_current_season() -> str:
     else:
         return "Autumn"
 
-def get_seasonal_produce() -> List[Dict[str, Any]]:
+def get_seasonal_produce(diet: str = "None") -> List[Dict[str, Any]]:
     """
     Returns a sample of seasonal produce based on the current season.
     Hardcodes some produce-to-season mappings and filters the dataset.
@@ -46,8 +46,9 @@ def get_seasonal_produce() -> List[Dict[str, Any]]:
         # Take up to 3 unique products per seasonal category to avoid overwhelming the feed
         unique_matches = matches["product_name"].unique().tolist()
         
+        from dietary_filters import is_diet_compliant
         for p in unique_matches[:3]:
-            if p not in seen:
+            if p not in seen and is_diet_compliant(p, diet):
                 seasonal_products.append({
                     "product_name": p,
                     "season": season,

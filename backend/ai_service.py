@@ -8,17 +8,24 @@ client = AsyncOpenAI(
     api_key="ollama" # required but ignored by Ollama
 )
 
-async def generate_chat_response(messages: list[dict], cart_items: list[str]) -> str:
+async def generate_chat_response(messages: list[dict], cart_items: list[str], diet: str = "None"):
     # Prepend the system prompt containing the user's live cart context
-    system_message = {"role": "system", "content": get_system_prompt(cart_items)}
+    sys_content = get_system_prompt(cart_items)
+    if diet and diet != "None":
+        sys_content += f"\n\nCRITICAL CONSTRAINT: The user follows a strict {diet} diet. You MUST ONLY recommend {diet}-friendly recipes and foods. If their cart contains non-{diet} items, you MUST warn them!"
+    
+    system_message = {"role": "system", "content": sys_content}
     full_messages = [system_message] + messages
     
     try:
         response = await client.chat.completions.create(
             model="llama3.2",
             messages=full_messages,
-            max_tokens=700
+            max_tokens=700,
+            stream=True
         )
-        return response.choices[0].message.content
+        async for chunk in response:
+            if chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
     except Exception as e:
-        return f"Error communicating with Local AI: {str(e)}. Please ensure Ollama is running on your Mac!"
+        yield f"Error communicating with Local AI: {str(e)}. Please ensure Ollama is running on your Mac!"

@@ -8,7 +8,7 @@ interface Meal {
     rating: number;
 }
 
-export default function CommunityMeals() {
+export default function CommunityMeals({ diet }: { diet: string }) {
     const [meals, setMeals] = useState<Meal[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -19,7 +19,7 @@ export default function CommunityMeals() {
 
     const fetchMeals = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/meals');
+            const response = await fetch(`http://localhost:8000/api/meals?diet=${encodeURIComponent(diet)}`);
             if (!response.ok) throw new Error('Failed to fetch community meals');
             const data = await response.json();
             setMeals(data.reverse()); // Show newest first
@@ -33,7 +33,7 @@ export default function CommunityMeals() {
 
     useEffect(() => {
         fetchMeals();
-    }, []);
+    }, [diet]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,7 +43,9 @@ export default function CommunityMeals() {
         try {
             const response = await fetch('http://localhost:8000/api/meals', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(newMeal)
             });
             if (!response.ok) throw new Error('Failed to post meal');

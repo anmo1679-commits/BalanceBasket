@@ -13,9 +13,10 @@ interface OptimizationResult {
 interface ListOptimizerProps {
     items: string[];
     setItems: (items: string[]) => void;
+    diet: string;
 }
 
-export default function ListOptimizer({ items, setItems }: ListOptimizerProps) {
+export default function ListOptimizer({ items, setItems, diet }: ListOptimizerProps) {
     const [newItem, setNewItem] = useState('');
     const [result, setResult] = useState<OptimizationResult | null>(null);
     const [loading, setLoading] = useState(false);
@@ -44,8 +45,10 @@ export default function ListOptimizer({ items, setItems }: ListOptimizerProps) {
         try {
             const response = await fetch('http://localhost:8000/api/lists/optimize', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ items, diet })
             });
 
             if (!response.ok) throw new Error('Failed to optimize list');

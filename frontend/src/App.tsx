@@ -1,31 +1,16 @@
 import { useState } from 'react'
-import { Search, ShoppingCart, Leaf, Users, Bot, LogOut } from 'lucide-react'
+import { Search, ShoppingCart, Leaf, Users, Bot, UtensilsCrossed } from 'lucide-react'
 import './App.css'
 import SearchTool from './components/SearchTool'
 import ListOptimizer from './components/ListOptimizer'
 import SeasonalDashboard from './components/SeasonalDashboard'
 import CommunityMeals from './components/CommunityMeals'
 import AIAssistant from './components/AIAssistant'
-import AuthScreen from './components/AuthScreen'
 
 function App() {
   const [activeTab, setActiveTab] = useState('search')
   const [cartItems, setCartItems] = useState<string[]>([])
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
-
-  const handleLogin = (newToken: string) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-  };
-
-  if (!token) {
-    return <AuthScreen onLogin={handleLogin} />
-  }
+  const [diet, setDiet] = useState<string>('None')
 
   return (
     <div className="app-container">
@@ -79,10 +64,29 @@ function App() {
           </div>
         </nav>
 
-        <div className="nav-item" style={{ marginTop: 'auto' }} onClick={handleLogout}>
-          <LogOut size={20} />
-          Sign Out
+        <div style={{ marginTop: 'auto', padding: '1rem', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-light)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+             <UtensilsCrossed size={16} />
+             <span>Dietary Profile</span>
+          </div>
+          <select 
+             value={diet} 
+             onChange={(e) => setDiet(e.target.value)}
+             style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', background: 'var(--background)' }}
+          >
+             <option value="None">None</option>
+             <option value="Vegan">Vegan</option>
+             <option value="Vegetarian">Vegetarian</option>
+             <option value="Pescatarian">Pescatarian</option>
+             <option value="Gluten-Free">Gluten-Free</option>
+             <option value="Dairy-Free">Dairy-Free</option>
+             <option value="Nut-Free">Nut-Free</option>
+             <option value="Shellfish-Free">Shellfish-Free</option>
+             <option value="Keto">Keto</option>
+             <option value="Paleo">Paleo</option>
+          </select>
         </div>
+
       </aside>
 
       {/* Main Content Area */}
@@ -107,23 +111,23 @@ function App() {
         {/* Tab Content Areas */}
         <section className="tab-content">
           {activeTab === 'search' && (
-            <SearchTool />
+            <SearchTool diet={diet} />
           )}
 
           {activeTab === 'cart' && (
-            <ListOptimizer items={cartItems} setItems={setCartItems} />
+            <ListOptimizer items={cartItems} setItems={setCartItems} diet={diet} />
           )}
 
           {activeTab === 'seasonal' && (
-            <SeasonalDashboard />
+            <SeasonalDashboard diet={diet} />
           )}
 
           {activeTab === 'community' && (
-            <CommunityMeals />
+            <CommunityMeals diet={diet} />
           )}
 
           {activeTab === 'assistant' && (
-            <AIAssistant currentCartItems={cartItems} />
+            <AIAssistant currentCartItems={cartItems} diet={diet} />
           )}
         </section>
       </main>

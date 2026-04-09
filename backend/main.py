@@ -31,63 +31,6 @@ def get_db():
         db.close()
 
 
-# ── Authentication ──────────────────────────────────────────────────────────────
-
-from auth import get_password_hash, verify_password, create_access_token, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-import jwt
-from datetime import timedelta
-from schemas import UserCreate, UserOut, Token
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
-
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except jwt.PyJWTError:
-        raise credentials_exception
-    user = db.query(models.User).filter(models.User.email == email).first()
-    if user is None:
-        raise credentials_exception
-    return user
-
-@app.post("/api/register", response_model=UserOut)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    hashed_password = get_password_hash(user.password)
-    db_user = models.User(email=user.email, name=user.name, hashed_password=hashed_password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-@app.post("/api/token", response_model=Token)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
-
-@app.get("/api/users/me", response_model=UserOut)
-def read_users_me(current_user: models.User = Depends(get_current_user)):
-    return current_user
-
-
 # ── Lists ──────────────────────────────────────────────────────────────────────
 
 @app.post("/lists", response_model=ListOut, status_code=201)
@@ -143,11 +86,11 @@ from product_search import search_products
 from price_compare import get_price_comparison
 
 @app.get("/api/products/search")
-def search_products_api(q: str = ""):
+def search_products_api(q: str = "", diet: str = "None"):
     if not q:
         return []
         
-    matching_products = search_products(q)
+    matching_products = search_products(q, diet=diet)
     results = []
     
     for product in matching_products:
@@ -174,8 +117,8 @@ def optimize_list_api(payload: ListOptimizationRequest):
 from seasonal_guide import get_seasonal_produce
 
 @app.get("/api/seasonal")
-def seasonal_produce_api():
-    seasonal_data = get_seasonal_produce()
+def seasonal_produce_api(diet: str = "None"):
+    seasonal_data = get_seasonal_produce(diet=diet)
     if not seasonal_data:
         # Fallback if the dataset is empty or logic fails
         return []
@@ -211,7 +154,7 @@ def create_meal(payload: MealCreate, db: Session = Depends(get_db)):
     return new_meal
 
 @app.get("/api/meals", response_model=list[MealOut])
-def get_meals(db: Session = Depends(get_db)):
+def get_meals(db: Session = Depends(get_db), diet: str = "None"):
     # Return meals ordered by newest first (descending ID)
     return db.query(models.MealRate).order_by(models.MealRate.id.desc()).all()
 
@@ -228,11 +171,16 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: list[ChatMessage]
     cart_items: list[str] = []
+    diet: str = "None"
+
+from fastapi.responses import StreamingResponse
 
 @app.post("/api/chat")
 async def chat_api(payload: ChatRequest):
     # Convert Pydantic models to dicts for the OpenAI API
     messages_dicts = [{"role": m.role, "content": m.content} for m in payload.messages]
     
-    response_text = await generate_chat_response(messages_dicts, payload.cart_items)
-    return {"reply": response_text}
+    return StreamingResponse(
+        generate_chat_response(messages_dicts, payload.cart_items, payload.diet),
+        media_type="text/plain"
+    )
