@@ -1,0 +1,61 @@
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: var(--surface);
+  border-right: 1px solid var(--border-light);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: fixed;
+  height: 100vh;
+}
+
+.sidebar h1 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.nav-item {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+.main-content {
+  flex: 1;
+  padding: 3rem;
+  margin-left: 250px;
+  /* Offset for fixed sidebar */
+  max-width: 1000px;
+}
+
+.header-section {
+  margin-bottom: 3rem;
+}
+
+.header-section p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
