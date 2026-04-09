@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #2e7d32;
+  --primary-color: #3a8f01;
   --primary-hover: #1b5e20;
   --secondary-color: #f1f8e9;
-  --background: #f9fbf9;
+  --background: #f5fff0;
   --surface: #ffffff;
-  --text-main: #1e293b;
+  --text-main: #005209;
   --text-muted: #64748b;
   --border-light: #e2e8f0;
   --danger: #ef4444;
@@ -91,3 +91,4 @@ input:focus {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
+

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Search, ShoppingCart, Leaf, Users, Bot, LogOut } from 'lucide-react'
+import logoImage from './assets/Logo.png'
 import './App.css'
 import SearchTool from './components/SearchTool'
 import ListOptimizer from './components/ListOptimizer'
@@ -23,16 +24,14 @@ function App() {
     setToken(null);
   };
 
-  if (!token) {
-    return <AuthScreen onLogin={handleLogin} />
-  }
+
 
   return (
     <div className="app-container">
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         <h1>
-          <Leaf color="var(--primary-color)" />
+          <img src={logoImage} alt="BalanceBasket Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
           BalanceBasket
         </h1>
 
