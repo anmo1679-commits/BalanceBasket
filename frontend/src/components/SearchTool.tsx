@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, Loader2, Store, X, ShoppingCart, ChevronRight, Flame, Beef, Wheat, Droplet, Leaf, ArrowRight } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface PriceResult {
     product_name: string;
@@ -561,7 +562,7 @@ export default function SearchTool({ diet, onAddToList }: { diet: string; onAddT
         setError('');
         try {
             const response = await fetch(
-                `http://localhost:8000/api/products/search?q=${encodeURIComponent(searchQuery)}&diet=${encodeURIComponent(searchDiet)}`
+                `${API_URL}/api/products/search?q=${encodeURIComponent(searchQuery)}&diet=${encodeURIComponent(searchDiet)}`
             );
             if (!response.ok) throw new Error('Failed to fetch data');
             const data = await response.json();

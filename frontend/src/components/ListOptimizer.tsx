@@ -4,6 +4,7 @@ import {
     Pin, PinOff, Clock, ChevronDown, ChevronUp, X, RotateCcw, Check,
     Pencil, Save, BarChart2
 } from 'lucide-react';
+import { API_URL } from '../config';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -81,7 +82,7 @@ function timeAgo(iso: string | null): string {
     return `${Math.floor(hrs / 24)}d ago`;
 }
 
-const API = 'http://localhost:8000';
+const API = API_URL;
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 

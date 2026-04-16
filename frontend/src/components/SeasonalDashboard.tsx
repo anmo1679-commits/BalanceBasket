@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Leaf, Store, Loader2, Plus, Check, ShoppingCart } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface SeasonalItem {
     product_name: string;
@@ -49,7 +50,7 @@ export default function SeasonalDashboard({ diet, cartItems, onAddToList }: Seas
             setError('');
             try {
                 const response = await fetch(
-                    `http://localhost:8000/api/seasonal?diet=${encodeURIComponent(diet)}`
+                    `${API_URL}/api/seasonal?diet=${encodeURIComponent(diet)}`
                 );
                 if (!response.ok) throw new Error('Failed to fetch seasonal produce');
                 const data = await response.json();

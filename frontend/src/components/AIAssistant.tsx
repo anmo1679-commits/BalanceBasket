@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Sparkles, MessageSquare, Zap } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { API_URL } from '../config';
 
 interface ChatMessage {
     role: 'user' | 'assistant';
@@ -39,7 +40,7 @@ export default function AIAssistant({ currentCartItems, diet, pantryItems }: AIA
 
     // Pre-warm the AI model when the component mounts
     useEffect(() => {
-        fetch('http://localhost:8000/api/chat/warmup', { method: 'POST' }).catch(() => {});
+        fetch(`${API_URL}/api/chat/warmup`, { method: 'POST' }).catch(() => {});
     }, []);
 
     const performChat = async (userMessage: string) => {
@@ -52,7 +53,7 @@ export default function AIAssistant({ currentCartItems, diet, pantryItems }: AIA
         try {
             const apiMessages = newMessages.map(m => ({ role: m.role, content: m.content }));
 
-            const response = await fetch('http://localhost:8000/api/chat', {
+            const response = await fetch(`${API_URL}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

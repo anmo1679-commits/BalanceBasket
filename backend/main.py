@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+
+load_dotenv()
 
 import models
 from database import engine, SessionLocal
@@ -11,12 +15,14 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="BalanceBasket API")
 
+# Configure CORS from environment
+origins = os.getenv("CORS_ORIGINS", "").split(",")
+if not origins or origins == [""]:
+    origins = ["http://localhost:3000", "http://localhost:5173"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:5173"
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

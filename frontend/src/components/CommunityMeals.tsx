@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Loader2, ChefHat, Flame, Clock, TrendingUp } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface Meal {
     id: number;
@@ -361,7 +362,7 @@ export default function CommunityMeals({ diet }: { diet: string }) {
 
     const fetchMeals = async () => {
         try {
-            const res = await fetch(`http://localhost:8000/api/meals?diet=${encodeURIComponent(diet)}`);
+            const res = await fetch(`${API_URL}/api/meals?diet=${encodeURIComponent(diet)}`);
             if (!res.ok) throw new Error('Failed to fetch');
             const data: Meal[] = await res.json();
             setMeals(data);
@@ -377,7 +378,7 @@ export default function CommunityMeals({ diet }: { diet: string }) {
     const handleSubmit = async (form: { name: string; description: string; rating: number }) => {
         setSubmitting(true);
         try {
-            const res = await fetch('http://localhost:8000/api/meals', {
+            const res = await fetch(`${API_URL}/api/meals`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),

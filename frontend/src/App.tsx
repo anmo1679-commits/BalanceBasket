@@ -8,6 +8,7 @@ import CommunityMeals from './components/CommunityMeals'
 import AIAssistant from './components/AIAssistant'
 import PantryManager, { type PantryItem } from './components/PantryManager'
 import { useEffect } from 'react'
+import { API_URL } from './config'
 
 function App() {
   const [activeTab, setActiveTab] = useState('search')
@@ -20,7 +21,7 @@ function App() {
   const fetchPantry = async () => {
       setLoadingPantry(true);
       try {
-          const res = await fetch('http://localhost:8000/api/pantry');
+          const res = await fetch(`${API_URL}/api/pantry`);
           if (res.ok) {
               const data = await res.json();
               setPantryItems(data);
@@ -35,7 +36,7 @@ function App() {
   }, []);
 
   const handleAddPantryItem = async (name: string, quantity: string) => {
-      await fetch('http://localhost:8000/api/pantry', {
+      await fetch(`${API_URL}/api/pantry`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, quantity })
@@ -44,7 +45,7 @@ function App() {
   };
 
   const handleRemovePantryItem = async (id: number) => {
-      await fetch(`http://localhost:8000/api/pantry/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/pantry/${id}`, { method: 'DELETE' });
       fetchPantry();
   };
 
@@ -217,7 +218,7 @@ function App() {
                setItems={setCartItems} 
                diet={diet} 
                onSyncPantry={async (itemsToSync) => {
-                   await fetch('http://localhost:8000/api/pantry/bulk', {
+                   await fetch(`${API_URL}/api/pantry/bulk`, {
                        method: 'POST',
                        headers: { 'Content-Type': 'application/json' },
                        body: JSON.stringify({ items: itemsToSync })
