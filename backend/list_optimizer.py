@@ -1,5 +1,4 @@
 from typing import List, Dict, Any, Optional
-from price_compare import get_price_comparison
 
 def optimize_list(product_names: List[str]) -> Dict[str, Any]:
     """
@@ -16,16 +15,18 @@ def optimize_list(product_names: List[str]) -> Dict[str, Any]:
         matches = search_products(product, limit=1)
         if not matches:
             continue
-            
+
         best_match = matches[0]
-        comparison = get_price_comparison(best_match)
-        if not comparison:
-            continue
-            
-        prices = comparison.get("prices", {})
-        itemized_breakdown[product] = prices
-        
-        # Accumulate totals for stores that carry the item
+        prices = best_match.get("prices", {})
+        cheapest_store_for_item = min(prices, key=prices.get) if prices else None
+        cheapest_price_for_item = prices[cheapest_store_for_item] if cheapest_store_for_item else 0.0
+
+        itemized_breakdown[product] = {
+            "cheapest_store": cheapest_store_for_item,
+            "cheapest_price": round(cheapest_price_for_item, 2),
+            "prices": {s: round(p, 2) for s, p in prices.items()},
+        }
+
         for store, price in prices.items():
             if store not in store_totals:
                 store_totals[store] = 0.0

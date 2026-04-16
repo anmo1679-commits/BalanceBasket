@@ -8,9 +8,13 @@ client = AsyncOpenAI(
     api_key="ollama" # required but ignored by Ollama
 )
 
-async def generate_chat_response(messages: list[dict], cart_items: list[str], diet: str = "None"):
+async def generate_chat_response(messages: list[dict], cart_items: list[str], diet: str = "None", pantry_items: list[str] = None):
     # Prepend the system prompt containing the user's live cart context
     sys_content = get_system_prompt(cart_items)
+    
+    if pantry_items:
+        sys_content += f"\n\nPANTRY CONTEXT: The user already has these items in their pantry at home: {', '.join(pantry_items)}. Try to suggest recipes that use these items to prevent food waste!"
+        
     if diet and diet != "None":
         sys_content += f"\n\nCRITICAL CONSTRAINT: The user follows a strict {diet} diet. You MUST ONLY recommend {diet}-friendly recipes and foods. If their cart contains non-{diet} items, you MUST warn them!"
     
@@ -19,13 +23,28 @@ async def generate_chat_response(messages: list[dict], cart_items: list[str], di
     
     try:
         response = await client.chat.completions.create(
-            model="llama3.2",
+            model="llama3.2:1b",
             messages=full_messages,
-            max_tokens=700,
-            stream=True
+            max_tokens=400,
+            stream=True,
+            extra_body={"keep_alive": "1h"}
         )
         async for chunk in response:
             if chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
     except Exception as e:
         yield f"Error communicating with Local AI: {str(e)}. Please ensure Ollama is running on your Mac!"
+
+async def warmup_model():
+    """Warms up the model by sending a tiny, non-streaming request."""
+    try:
+        await client.chat.completions.create(
+            model="llama3.2:1b",
+            messages=[{"role": "system", "content": "ping"}],
+            max_tokens=1,
+            stream=False,
+            extra_body={"keep_alive": "1h"}
+        )
+        return True
+    except:
+        return False

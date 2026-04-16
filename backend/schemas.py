@@ -50,6 +50,21 @@ class MealOut(BaseModel):
     class Config:
         from_attributes = True
 
+class PantryItemCreate(BaseModel):
+    name: str
+    quantity: Optional[str] = "1"
+
+class PantryListCreate(BaseModel):
+    items: list[str]
+
+class PantryItemOut(BaseModel):
+    id: int
+    name: str
+    quantity: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
 class UserBase(BaseModel):
     email: str
     name: str
