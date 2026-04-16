@@ -1,3 +1,4 @@
+import os
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from system_prompt import get_system_prompt
@@ -30,14 +31,13 @@ async def generate_chat_response(messages: list[dict], cart_items: list[str], di
             model=AI_MODEL,
             messages=full_messages,
             max_tokens=400,
-            stream=True,
-            extra_body={"keep_alive": "1h"}
+            stream=True
         )
         async for chunk in response:
             if chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
     except Exception as e:
-        yield f"Error communicating with Local AI: {str(e)}. Please ensure Ollama is running on your Mac!"
+        yield f"AI Assistant Error: {str(e)}. Check your connection and API configuration."
 
 async def warmup_model():
     """Warms up the model by sending a tiny, non-streaming request."""
@@ -46,8 +46,7 @@ async def warmup_model():
             model=AI_MODEL,
             messages=[{"role": "system", "content": "ping"}],
             max_tokens=1,
-            stream=False,
-            extra_body={"keep_alive": "1h"}
+            stream=False
         )
         return True
     except:
