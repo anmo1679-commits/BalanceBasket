@@ -201,7 +201,7 @@ function StoreBarChart({ result }: { result: OptimizationResult }) {
     );
 }
 
-function ItemizedBreakdown({ result, items }: { result: OptimizationResult; items: string[] }) {
+function ItemizedBreakdown({ result }: { result: OptimizationResult }) {
     const [open, setOpen] = useState(false);
     const breakdown = result.itemized_breakdown ?? {};
     if (Object.keys(breakdown).length === 0) return null;
@@ -680,7 +680,7 @@ export default function ListOptimizer({ items, setItems, diet, onSyncPantry }: L
                             </div>
 
                             <StoreBarChart result={result} />
-                            <ItemizedBreakdown result={result} items={items} />
+                            <ItemizedBreakdown result={result} />
 
                             {/* Purchase button */}
                             <div style={{ padding: '1.25rem', background: 'var(--surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--primary-color)' }}>

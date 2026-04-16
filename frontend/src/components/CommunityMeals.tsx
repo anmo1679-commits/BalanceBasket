@@ -48,7 +48,7 @@ function getMealEmoji(name: string, description: string = ''): string {
     return FALLBACK_EMOJIS[seed % FALLBACK_EMOJIS.length];
 }
 
-const MEAL_TAGS = ['Budget', 'Vegan', 'Vegetarian', 'Gluten-Free', 'Quick', 'High Protein', 'Comfort Food', 'Meal Prep', 'One Pan', 'Kid Friendly'];
+// Unused MEAL_TAGS removed to fix build error
 
 const TAG_STYLES: Record<string, { bg: string; color: string }> = {
     'Budget':       { bg: '#d1fae5', color: '#065f46' },
@@ -519,7 +519,7 @@ export default function CommunityMeals({ diet }: { diet: string }) {
                     </div>
                 ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.1rem' }}>
-                        {sorted.map((meal, idx) => {
+                        {sorted.map((meal) => {
                             // Rank by rating in top-rated sort, else show top-3 by rating
                             const ratingRank = [...meals].sort((a,b) => b.rating - a.rating).findIndex(m => m.id === meal.id) + 1;
                             return (

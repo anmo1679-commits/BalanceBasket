@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, Loader2, Store, X, ShoppingCart, ChevronRight, Flame, Beef, Wheat, Droplet, Leaf, ArrowRight } from 'lucide-react';
+import { Search, Loader2, Store, X, ShoppingCart, ChevronRight, Flame, Beef, Wheat, Droplet, Leaf } from 'lucide-react';
 import { API_URL } from '../config';
 
 interface PriceResult {

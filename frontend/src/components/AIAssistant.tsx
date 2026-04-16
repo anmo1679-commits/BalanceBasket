@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Sparkles, MessageSquare, Zap } from 'lucide-react';
+import { Loader2, MessageSquare, Bot, User, Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../config';
 

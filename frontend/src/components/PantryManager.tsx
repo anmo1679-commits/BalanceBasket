@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, Trash2, Loader2, Search, X, Sparkles } from 'lucide-react';
+import { Plus, Loader2, Search, X, Sparkles } from 'lucide-react';
 
 export interface PantryItem {
     id: number;
