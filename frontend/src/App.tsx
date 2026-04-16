@@ -31,9 +31,14 @@ function App() {
       }
   };
 
-  useEffect(() => {
-      fetchPantry();
-  }, []);
+    // Wake up the backend as soon as the app loads (useful for Render free tier)
+    useEffect(() => {
+        fetch(API_URL).catch(() => {});
+    }, []);
+
+    useEffect(() => {
+        fetchPantry();
+    }, []);
 
   const handleAddPantryItem = async (name: string, quantity: string) => {
       await fetch(`${API_URL}/api/pantry`, {
